@@ -53,6 +53,8 @@ Une fois les deux applications lancées :
 - **Q** : Tourner à gauche
 - **D** : Tourner à droite
 
+Plusieurs commandes de déplacements peuvent s'effectuer à la suite (exemple: 'ZZQZ' fera avancer le rover 2 fois, tourner à gauche et avancer à nouveau)
+
 ### Commandes de Statut
 
 - **M/map** : Afficher la carte des découvertes
