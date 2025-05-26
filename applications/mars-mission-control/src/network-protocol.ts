@@ -10,7 +10,7 @@ export interface Position {
 }
 
 export type Direction = 'NORTH' | 'SOUTH' | 'EAST' | 'WEST';
-export type Command = 'F' | 'B' | 'L' | 'R';
+export type Command = 'Z' | 'S' | 'Q' | 'D';
 
 // ============= MESSAGES RÉSEAU =============
 export interface NetworkMessage {
