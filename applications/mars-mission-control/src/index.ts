@@ -49,16 +49,14 @@ class MissionControlUI {
         console.log('🚀 Centre de contrôle de mission Mars');
         console.log('📡 Communication rover via réseau uniquement');
         console.log('=====================================\\n');
-    }
-
-    /**
+    }    /**
      * Aide
      */
     private showHelp(): void {
         console.log('🎮 COMMANDES DISPONIBLES:');
-        console.log('  w/f     - Avancer');
+        console.log('  z/f     - Avancer');
         console.log('  s/b     - Reculer');
-        console.log('  a/l     - Tourner gauche');
+        console.log('  q/l     - Tourner gauche');
         console.log('  d/r     - Tourner droite');
         console.log('  map/m   - Afficher carte Mars');
         console.log('  status/s- Statut mission');
@@ -66,7 +64,7 @@ class MissionControlUI {
         console.log('  help/h  - Afficher aide');
         console.log('  quit/q  - Quitter');
         console.log('');
-        console.log('💡 Vous pouvez enchaîner les commandes: wasd, fffl, etc.');
+        console.log('💡 Vous pouvez enchaîner les commandes: zqsd, fffl, etc.');
         console.log('');
     }
 
@@ -120,9 +118,7 @@ class MissionControlUI {
             default:
                 this.handleMovementCommands(input);
         }
-    }
-
-    /**
+    }    /**
      * Traitement des commandes de mouvement
      */
     private handleMovementCommands(input: string): void {
@@ -130,7 +126,7 @@ class MissionControlUI {
 
         for (const char of input) {
             switch (char) {
-                case 'w':
+                case 'z':
                 case 'f':
                     commands.push('F');
                     break;
@@ -138,7 +134,7 @@ class MissionControlUI {
                 case 'b':
                     commands.push('B');
                     break;
-                case 'a':
+                case 'q':
                 case 'l':
                     commands.push('L');
                     break;

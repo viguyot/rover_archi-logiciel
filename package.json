@@ -36,6 +36,7 @@
     "url": "."
   },
   "dependencies": {
-    "mars-rover-distributed-system": "file:"
+    "mars-rover-distributed-system": "file:",
+    "ws": "^8.18.2"
   }
 }

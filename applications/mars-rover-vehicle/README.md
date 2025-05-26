@@ -73,9 +73,9 @@ Définitions du protocole de communication :
 
 Le rover répond aux commandes suivantes :
 
-- `w` : Avancer d'une case
+- `z` : Avancer d'une case
 - `s` : Reculer d'une case
-- `a` : Tourner à gauche (90°)
+- `q` : Tourner à gauche (90°)
 - `d` : Tourner à droite (90°)
 
 ## Messages de Sortie

@@ -7,7 +7,7 @@
 
 import WebSocket from 'ws';
 
-const ROVER_URL = 'ws://localhost:9090';
+const ROVER_URL = 'ws://localhost:8080';
 const TEST_TIMEOUT = 30000; // 30 secondes
 
 class DiscoverySystemTester {
@@ -19,7 +19,7 @@ class DiscoverySystemTester {
 
     async runTests() {
         console.log('🧪 === TEST SYSTÈME DE DÉCOUVERTE OBSTACLES ===\n');
-        
+
         try {
             await this.connectToRover();
             await this.waitForInitialStatus();
@@ -39,9 +39,9 @@ class DiscoverySystemTester {
     connectToRover() {
         return new Promise((resolve, reject) => {
             console.log(`🔗 Connexion au rover sur ${ROVER_URL}...`);
-            
+
             this.ws = new WebSocket(ROVER_URL);
-            
+
             this.ws.on('open', () => {
                 console.log('✅ Connexion établie avec le rover\n');
                 resolve();
@@ -136,51 +136,51 @@ class DiscoverySystemTester {
         await this.sendCommand(['R']); // Tourner droite
         await this.sendCommand(['F']); // Avancer
         await this.sendCommand(['L']); // Tourner gauche
-        
+
         console.log('✅ Tests de mouvement terminés\n');
     }
 
     async testObstacleDiscovery() {
-        console.log('🚧 Test de découverte d\\'obstacles...\n');
+        console.log('🚧 Test de découverte d\'obstacles...\n');
 
         // Essayer de se déplacer vers des obstacles connus
         // Selon la configuration par défaut, il y a des obstacles en (3,3), (5,5), etc.
-        
+
         // Essayer d'aller vers (3,3) depuis la position actuelle
         await this.sendCommand(['F', 'F', 'F']); // Plusieurs avancées pour potentiellement toucher un obstacle
         await this.sendCommand(['R', 'F', 'F']); // Changer direction et avancer
         await this.sendCommand(['L', 'L', 'F']); // Demi-tour et avancer
-        
+
         console.log('✅ Tests de découverte terminés\n');
     }
 
     displayResults() {
         console.log('📊 === RÉSULTATS DES TESTS ===\n');
-        
+
         const movements = this.testResults.filter(r => r.type === 'movement_success');
         const obstacles = this.testResults.filter(r => r.type === 'obstacle_discovered');
-        
+
         console.log(`✅ Mouvements réussis: ${movements.length}`);
         console.log(`🚧 Obstacles découverts: ${obstacles.length}`);
-        
+
         if (obstacles.length > 0) {
             console.log('\\n🗺️  Obstacles découverts:');
             obstacles.forEach((obs, index) => {
                 console.log(`   ${index + 1}. Position (${obs.position.x}, ${obs.position.y})`);
             });
         }
-        
+
         console.log('\\n✅ Validation architecture:');
         console.log('   🔄 Communication réseau: FONCTIONNELLE');
         console.log('   🚀 Rover Vehicle: FONCTIONNEL');
         console.log('   📡 Mission Control: FONCTIONNEL');
         console.log('   🗺️  Découverte obstacles: FONCTIONNELLE');
-        
+
         if (obstacles.length > 0) {
             console.log('   ✅ Le rover découvre et rapporte les obstacles');
             console.log('   ✅ Mission Control peut construire sa carte des obstacles');
         }
-        
+
         console.log('\\n🎯 ARCHITECTURE VALIDÉE - Système distribué fonctionnel !');
     }
 }
@@ -188,13 +188,13 @@ class DiscoverySystemTester {
 // Point d'entrée
 async function main() {
     const tester = new DiscoverySystemTester();
-    
+
     // Timeout global
     const timeout = setTimeout(() => {
         console.error('❌ Timeout global des tests');
         process.exit(1);
     }, TEST_TIMEOUT);
-    
+
     try {
         await tester.runTests();
         clearTimeout(timeout);
@@ -209,7 +209,7 @@ async function main() {
 
 // Vérifier si le rover est accessible avant de lancer les tests
 console.log('🔍 Vérification de la disponibilité du rover...');
-console.log('💡 Assurez-vous que le rover est lancé sur le port 9090');
-console.log('💡 Commande: cd applications/mars-rover-vehicle && node dist/index.js --port 9090\n');
+console.log('💡 Assurez-vous que le rover est lancé sur le port 8080');
+console.log('💡 Commande: cd applications/mars-rover-vehicle && node dist/index.js --port 8080\n');
 
 main();

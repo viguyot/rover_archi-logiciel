@@ -48,9 +48,9 @@ Une fois les deux applications lancées :
 
 ### Commandes de Déplacement
 
-- **W** : Avancer
+- **Z** : Avancer
 - **S** : Reculer
-- **A** : Tourner à gauche
+- **Q** : Tourner à gauche
 - **D** : Tourner à droite
 
 ### Commandes de Statut

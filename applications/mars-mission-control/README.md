@@ -62,9 +62,9 @@ Définitions du protocole de communication :
 === CONTRÔLE DE MISSION MARS ROVER ===
 
 Commandes de déplacement:
-  W - Avancer
+  Z - Avancer
   S - Reculer
-  A - Tourner à gauche
+  Q - Tourner à gauche
   D - Tourner à droite
 
 Commandes d'information:
@@ -124,9 +124,9 @@ X = Obstacle détecté
 
 ### Commandes de Déplacement
 
-- **W** : Envoie commande "w" (avancer)
+- **Z** : Envoie commande "z" (avancer)
 - **S** : Envoie commande "s" (reculer)
-- **A** : Envoie commande "a" (tourner gauche)
+- **Q** : Envoie commande "q" (tourner gauche)
 - **D** : Envoie commande "d" (tourner droite)
 
 ### Commandes d'Information
