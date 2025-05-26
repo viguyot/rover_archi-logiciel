@@ -108,7 +108,7 @@ interface NetworkMessage {
 
 ### Types de Messages
 
-- **command** : Commandes de déplacement (w/s/a/d)
+- **command** : Commandes de déplacement (z/q/s/d)
 - **status** : Informations sur l'état du rover
 - **discovery** : Rapports de découverte d'obstacles ou de points d'intérêt
 
