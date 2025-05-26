@@ -1,0 +1,33 @@
+{
+  "name": "mars-rover-vehicle",
+  "version": "1.0.0",
+  "description": "Application véhicule Mars Rover - Système embarqué",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "ts-node --esm src/index.ts",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "mars",
+    "rover",
+    "vehicle",
+    "embedded"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mars-rover-vehicle": "file:",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.50",
+    "@types/ws": "^8.18.1",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}

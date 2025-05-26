@@ -1,0 +1,41 @@
+{
+  "name": "mars-rover-distributed-system",
+  "version": "1.0.0",
+  "description": "Système distribué Mars Rover - Architecture complètement séparée",
+  "type": "module",
+  "scripts": {
+    "start": "node start-system.js",
+    "start:dev": "node start-system.js --dev",
+    "install-all": "node start-system.js --install-only",
+    "build-all": "node start-system.js --build-only",
+    "start:rover": "cd applications/mars-rover-vehicle && npm start",
+    "start:control": "cd applications/mars-mission-control && npm start",
+    "dev:rover": "cd applications/mars-rover-vehicle && npm run dev",
+    "dev:control": "cd applications/mars-mission-control && npm run dev",
+    "build:rover": "cd applications/mars-rover-vehicle && npm run build",
+    "build:control": "cd applications/mars-mission-control && npm run build",
+    "clean": "cd applications/mars-rover-vehicle && npm run clean && cd ../mars-mission-control && npm run clean",
+    "test": "node test-new-architecture.js",
+    "test:discovery": "node test-discovery-automated.js"
+  },
+  "keywords": [
+    "mars",
+    "rover",
+    "distributed-system",
+    "websocket",
+    "embedded",
+    "mission-control"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "dependencies": {
+    "mars-rover-distributed-system": "file:"
+  }
+}
