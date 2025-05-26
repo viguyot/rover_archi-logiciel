@@ -147,8 +147,10 @@ export class MarsMissionControl {
 
     /**
      * Traite les mises à jour de statut
-     */
-    private handleStatusUpdate(status: StatusMessage): void {
+     */    private handleStatusUpdate(status: StatusMessage): void {
+        // Sauvegarder l'ancienne position pour tracer le chemin
+        const oldPosition = this.roverState?.position;
+
         this.roverState = {
             roverId: status.payload.roverId,
             position: status.payload.position,
@@ -159,24 +161,73 @@ export class MarsMissionControl {
             connected: true
         };
 
+        // Si on avait une ancienne position et qu'elle est différente, tracer le chemin
+        if (oldPosition &&
+            (oldPosition.x !== status.payload.position.x || oldPosition.y !== status.payload.position.y)) {
+            this.traceRoverPath(oldPosition, status.payload.position);
+        }
+
         // Marquer la position comme explorée
         const posKey = `${status.payload.position.x},${status.payload.position.y}`;
         this.marsMap.exploredTerrain.add(posKey);
 
         console.log(`📊 Statut rover mis à jour: (${status.payload.position.x}, ${status.payload.position.y}) ${status.payload.direction} - ${status.payload.battery}%`);
-    }
-
-    /**
+    }    /**
      * Traite les réponses de commandes
      */
     private handleCommandResponse(response: CommandResponseMessage): void {
         console.log(`🎮 Réponse commande: ${response.payload.success ? '✅' : '❌'} ${response.payload.message}`);
 
-        if (response.payload.success) {
-            // Marquer le chemin comme exploré
-            const posKey = `${response.payload.finalPosition.x},${response.payload.finalPosition.y}`;
+        // Note: Le traçage du chemin est maintenant géré dans handleStatusUpdate()
+        // qui reçoit les mises à jour de position en temps réel
+    }    /**
+     * Trace le chemin du rover entre deux positions en utilisant l'algorithme de Bresenham
+     */
+    private traceRoverPath(startPos: Position, endPos: Position): void {
+        const path = this.getLinePath(startPos, endPos);
+
+        for (const pos of path) {
+            const posKey = `${pos.x},${pos.y}`;
             this.marsMap.exploredTerrain.add(posKey);
         }
+
+        console.log(`🗺️ Chemin tracé de (${startPos.x},${startPos.y}) à (${endPos.x},${endPos.y}) - ${path.length} cases explorées`);
+    }
+
+    /**
+     * Calcule le chemin en ligne droite entre deux positions (algorithme de Bresenham)
+     */
+    private getLinePath(start: Position, end: Position): Position[] {
+        const path: Position[] = [];
+
+        let x0 = start.x;
+        let y0 = start.y;
+        const x1 = end.x;
+        const y1 = end.y;
+
+        const dx = Math.abs(x1 - x0);
+        const dy = Math.abs(y1 - y0);
+        const sx = x0 < x1 ? 1 : -1;
+        const sy = y0 < y1 ? 1 : -1;
+        let err = dx - dy;
+
+        while (true) {
+            path.push({ x: x0, y: y0 });
+
+            if (x0 === x1 && y0 === y1) break;
+
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
+            }
+        }
+
+        return path;
     }
 
     /**
