@@ -55,10 +55,11 @@ Une fois les deux applications lancées :
 
 ### Commandes de Statut
 
-- **P** : Afficher la position actuelle
-- **M** : Afficher la carte des découvertes
-- **B** : Vérifier le niveau de batterie
-- **Q** : Quitter le programme
+- **M/map** : Afficher la carte des découvertes
+- **S/status** : Afficher le statut de la mission
+- **C/clear** : Nettoyer l'affichage
+- **H/help** : Afficher l'aide
+- **L/leave** : Quitter le programme
 
 ### Fonctionnalités
 

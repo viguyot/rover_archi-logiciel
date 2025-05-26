@@ -54,15 +54,15 @@ class MissionControlUI {
      */
     private showHelp(): void {
         console.log('🎮 COMMANDES DISPONIBLES:');
-        console.log('  z/f     - Avancer');
-        console.log('  s/b     - Reculer');
-        console.log('  q/l     - Tourner gauche');
-        console.log('  d/r     - Tourner droite');
-        console.log('  map/m   - Afficher carte Mars');
-        console.log('  status/s- Statut mission');
-        console.log('  clear/c - Effacer écran');
-        console.log('  help/h  - Afficher aide');
-        console.log('  quit/q  - Quitter');
+        console.log('  z       - Avancer');
+        console.log('  s       - Reculer');
+        console.log('  q       - Tourner à gauche');
+        console.log('  d       - Tourner à droite');
+        console.log('  map/m   - Afficher la carte de Mars');
+        console.log('  status/s- Statut de la mission');
+        console.log('  clear/c - Effacer l\'écran');
+        console.log('  help/h  - Afficher l\'aide');
+        console.log('  leave/l - Quitter');
         console.log('');
         console.log('💡 Vous pouvez enchaîner les commandes: zqsd, fffl, etc.');
         console.log('');
@@ -111,8 +111,8 @@ class MissionControlUI {
             case 'h':
                 this.showHelp();
                 break;
-            case 'quit':
-            case 'q':
+            case 'leave':
+            case 'l':
                 this.shutdown();
                 break;
             default:
@@ -127,19 +127,15 @@ class MissionControlUI {
         for (const char of input) {
             switch (char) {
                 case 'z':
-                case 'f':
                     commands.push('F');
                     break;
                 case 's':
-                case 'b':
                     commands.push('B');
                     break;
                 case 'q':
-                case 'l':
                     commands.push('L');
                     break;
                 case 'd':
-                case 'r':
                     commands.push('R');
                     break;
                 default:
