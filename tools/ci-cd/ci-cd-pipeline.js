@@ -252,7 +252,7 @@ class CICDPipeline {
                 test: Object.values(this.results.test).every(r => r.success),
                 quality: Object.values(this.results.quality).every(r => r.success),
                 integration: Object.values(this.results.integration).length > 0
-                    ? Object.values(this.results.integration).some(r => r.success)
+                    ? Object.values(this.results.integration).every(r => r.success)
                     : true
             }
         };
