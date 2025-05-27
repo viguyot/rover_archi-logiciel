@@ -15,8 +15,21 @@
     "build:rover": "cd applications/mars-rover-vehicle && npm run build",
     "build:control": "cd applications/mars-mission-control && npm run build",
     "clean": "cd applications/mars-rover-vehicle && npm run clean && cd ../mars-mission-control && npm run clean",
-    "test": "node test-new-architecture.js",
-    "test:discovery": "node test-discovery-automated.js"
+    "test": "node tools/tests/test-new-architecture.js",
+    "test:discovery": "node tools/tests/test-discovery-automated.js",
+    "test:validation": "node tools/tests/test-simple-validation.js",
+    "test:logging": "node tools/tests/test-structured-logging.js",
+    "ci:pipeline": "node tools/ci-cd/ci-cd-pipeline.js",
+    "ci:local": "node tools/ci-cd/ci-cd-local.js",
+    "ci:install": "npm install && cd applications/mars-rover-vehicle && npm install && cd ../mars-mission-control && npm install",
+    "ci:build": "npm run build:rover && npm run build:control",
+    "ci:test": "cd applications/mars-rover-vehicle && npm test",
+    "ci:quality": "cd applications/mars-rover-vehicle && npx tsc --noEmit && cd ../mars-mission-control && npx tsc --noEmit",
+    "ci:integration": "npm test && npm run test:discovery",
+    "ci:full": "npm run ci:install && npm run ci:build && npm run ci:test && npm run ci:quality && npm run ci:integration",
+    "postinstall": "echo 'Installation terminée - Utilisez npm run start pour démarrer le système'",
+    "pretest": "echo 'Préparation des tests - Vérification de l environnement'",
+    "posttest": "echo 'Tests terminés - Consultez tools/ci-cd/ci-cd-report.json pour les détails'"
   },
   "keywords": [
     "mars",

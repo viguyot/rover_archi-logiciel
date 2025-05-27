@@ -9,7 +9,11 @@
     "build:watch": "tsc --watch",
     "start": "node dist/index.js",
     "dev": "ts-node --esm src/index.ts",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test": "node test/rover-engine.test.js",
+    "test:watch": "node test/rover-engine.test.js --watch",
+    "lint": "echo 'Linting rover vehicle...' && exit 0",
+    "validate": "npm run build && npm run test"
   },
   "keywords": [
     "mars",

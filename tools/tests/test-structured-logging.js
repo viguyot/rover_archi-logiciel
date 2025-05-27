@@ -7,7 +7,6 @@
 
 import { spawn } from 'child_process';
 import WebSocket from 'ws';
-import { delay } from './test-utils.js';
 
 const ROVER_PORT = 8090;
 
