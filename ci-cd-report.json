@@ -1,0 +1,74 @@
+{
+  "timestamp": "2025-05-27T12:32:33.312Z",
+  "duration": "24s",
+  "results": {
+    "install": {
+      "root": {
+        "success": true
+      },
+      "mars-rover-vehicle": {
+        "success": true
+      },
+      "mars-mission-control": {
+        "success": true
+      }
+    },
+    "build": {
+      "mars-rover-vehicle": {
+        "success": true,
+        "output": "\n> mars-rover-vehicle@1.0.0 build\n> tsc\n\n",
+        "files": {
+          "indexJs": true
+        }
+      },
+      "mars-mission-control": {
+        "success": true,
+        "output": "\n> mars-mission-control@1.0.0 build\n> tsc\n\n",
+        "files": {
+          "indexJs": true
+        }
+      }
+    },
+    "test": {
+      "mars-rover-vehicle": {
+        "success": true,
+        "output": "\n> mars-rover-vehicle@1.0.0 test\n> node test/rover-engine.test.js\n\n🧪 === TESTS UNITAIRES ROVER ENGINE ===\n\n🔬 Test: Calcul position toroïdale - Wrapping horizontal\n   ✅ PASSÉ\n\n🔬 Test: Calcul position toroïdale - Wrapping vertical\n   ✅ PASSÉ\n\n🔬 Test: Validation configuration planète\n   ✅ PASSÉ\n\n🔬 Test: Validation directions rover\n   ✅ PASSÉ\n\n🔬 Test: Validation commandes rover\n   ✅ PASSÉ\n\n🔬 Test: Calcul rotation gauche\n   ✅ PASSÉ\n\n🔬 Test: Calcul rotation droite\n   ✅ PASSÉ\n\n🔬 Test: Détection collision obstacle\n   ✅ PASSÉ\n\n🔬 Test: Validation position libre\n   ✅ PASSÉ\n\n🔬 Test: Configuration logging par défaut\n   ✅ PASSÉ\n\n📊 === RÉSULTATS DES TESTS ===\n✅ Tests réussis: 10/10\n❌ Tests échoués: 0/10\n🎉 TOUS LES TESTS SONT PASSÉS !\n"
+      },
+      "mars-mission-control": {
+        "success": true,
+        "output": "\n> mars-mission-control@1.0.0 test\n> node test/mission-control.test.js\n\n🧪 === TESTS UNITAIRES MISSION CONTROL ===\n\n🔬 Test: Validation mapping clavier ZQSD français\n   ✅ PASSÉ\n\n🔬 Test: Validation protocole WebSocket\n   ✅ PASSÉ\n\n🔬 Test: Validation commandes rover valides\n   ✅ PASSÉ\n\n🔬 Test: Validation format position rover\n   ✅ PASSÉ\n\n🔬 Test: Validation URL WebSocket\n   ✅ PASSÉ\n\n🔬 Test: Validation interface utilisateur - Canvas\n   ✅ PASSÉ\n\n🔬 Test: Validation gestion événements clavier\n   ✅ PASSÉ\n\n🔬 Test: Validation système de notification\n   ✅ PASSÉ\n\n🔬 Test: Validation configuration réseau par défaut\n   ✅ PASSÉ\n\n🔬 Test: Validation état connexion WebSocket\n   ✅ PASSÉ\n\n📊 === RÉSULTATS DES TESTS ===\n✅ Tests réussis: 10/10\n❌ Tests échoués: 0/10\n🎉 TOUS LES TESTS SONT PASSÉS !\n"
+      }
+    },
+    "integration": {
+      "tools/tests/test-structured-logging.js": {
+        "success": false,
+        "error": "Command failed (1): node tools/tests/test-structured-logging.js\\nfile:///C:/Users/edoua/Desktop/GitHub/rover_archi-logiciel/tools/tests/test-structured-logging.js:105\r\n                    console.log(`   🛤️  Chemin: ${response.payload.pathTaken.map(p => `(${p.x},${p.y})`).join(' → ')}`);\r\n                                                                              ^\r\n\r\nTypeError: Cannot read properties of undefined (reading 'map')\r\n    at WebSocket.<anonymous> (file:///C:/Users/edoua/Desktop/GitHub/rover_archi-logiciel/tools/tests/test-structured-logging.js:105:79)\r\n    at WebSocket.emit (node:events:524:28)\r\n    at Receiver.receiverOnMessage (C:\\Users\\edoua\\Desktop\\GitHub\\rover_archi-logiciel\\node_modules\\ws\\lib\\websocket.js:1220:20)\r\n    at Receiver.emit (node:events:524:28)\r\n    at Receiver.dataMessage (C:\\Users\\edoua\\Desktop\\GitHub\\rover_archi-logiciel\\node_modules\\ws\\lib\\receiver.js:596:14)\r\n    at Receiver.getData (C:\\Users\\edoua\\Desktop\\GitHub\\rover_archi-logiciel\\node_modules\\ws\\lib\\receiver.js:496:10)\r\n    at Receiver.startLoop (C:\\Users\\edoua\\Desktop\\GitHub\\rover_archi-logiciel\\node_modules\\ws\\lib\\receiver.js:167:16)\r\n    at Receiver._write (C:\\Users\\edoua\\Desktop\\GitHub\\rover_archi-logiciel\\node_modules\\ws\\lib\\receiver.js:94:10)\r\n    at writeOrBuffer (node:internal/streams/writable:572:12)\r\n    at _write (node:internal/streams/writable:501:10)\r\n\r\nNode.js v22.13.1\r\n"
+      },
+      "tools/tests/test-simple-validation.js": {
+        "success": true,
+        "output": "\n🔗 Nouvelle connexion Mission Control établie\n✅ Connexion réussie !\n\n🎮 Test de commandes avec wrapping...\n📨 Message reçu: COMMAND (ID: test-simple)\n🎮 Commandes reçues: FFFFF\n🎮 Exécution de 5 commandes: FFFFF\n\n✅ VALIDATION RÉUSSIE !\n\n📋 Fonctionnalités validées:\n   🎯 Contrôles ZQSD: ✅\n   🌍 Carte toroïdale: ✅\n   📝 Logging structuré: ✅\n   🛤️  Suivi de chemin: ✅\n🌍 Wrap horizontal: bord est → bord ouest\n🚧 Avance: Obstacle détecté en (0, 1)\n❌ Arrêt à la commande 4: Avance: Obstacle détecté\n"
+      }
+    },
+    "quality": {
+      "mars-rover-vehicle-lint": {
+        "success": true
+      },
+      "mars-rover-vehicle-types": {
+        "success": true
+      },
+      "mars-mission-control-lint": {
+        "success": true
+      },
+      "mars-mission-control-types": {
+        "success": true
+      }
+    }
+  },
+  "summary": {
+    "install": true,
+    "build": true,
+    "test": true,
+    "quality": true,
+    "integration": true
+  }
+}

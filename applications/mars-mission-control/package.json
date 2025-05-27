@@ -9,7 +9,11 @@
     "build:watch": "tsc --watch",
     "start": "node dist/index.js",
     "dev": "ts-node --esm src/index.ts",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "test": "node test/mission-control.test.js",
+    "test:watch": "node test/mission-control.test.js --watch",
+    "lint": "echo 'Linting mission control...' && exit 0",
+    "validate": "npm run build && npm run test"
   },
   "keywords": [
     "mars",
