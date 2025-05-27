@@ -9,7 +9,6 @@ import { spawn } from 'child_process';
 import WebSocket from 'ws';
 
 const ROVER_PORT = 8090;
-const TEST_TIMEOUT = 15000;
 
 console.log('🧪 === Test du Système de Logging Structuré ===\n');
 
