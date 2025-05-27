@@ -143,14 +143,9 @@ export class MarsMissionControl {
             default:
                 console.log(`📨 Message rover reçu: ${message.type}`);
         }
-    }
-
-    /**
+    }    /**
      * Traite les mises à jour de statut
      */    private handleStatusUpdate(status: StatusMessage): void {
-        // Sauvegarder l'ancienne position pour tracer le chemin
-        const oldPosition = this.roverState?.position;
-
         this.roverState = {
             roverId: status.payload.roverId,
             position: status.payload.position,
@@ -161,26 +156,29 @@ export class MarsMissionControl {
             connected: true
         };
 
-        // Si on avait une ancienne position et qu'elle est différente, tracer le chemin
-        if (oldPosition &&
-            (oldPosition.x !== status.payload.position.x || oldPosition.y !== status.payload.position.y)) {
-            this.traceRoverPath(oldPosition, status.payload.position);
-        }
-
-        // Marquer la position comme explorée
+        // Marquer la position actuelle comme explorée
         const posKey = `${status.payload.position.x},${status.payload.position.y}`;
         this.marsMap.exploredTerrain.add(posKey);
 
         console.log(`📊 Statut rover mis à jour: (${status.payload.position.x}, ${status.payload.position.y}) ${status.payload.direction} - ${status.payload.battery}%`);
-    }    /**
+    }/**
      * Traite les réponses de commandes
      */
     private handleCommandResponse(response: CommandResponseMessage): void {
         console.log(`🎮 Réponse commande: ${response.payload.success ? '✅' : '❌'} ${response.payload.message}`);
 
-        // Note: Le traçage du chemin est maintenant géré dans handleStatusUpdate()
-        // qui reçoit les mises à jour de position en temps réel
-    }    /**
+        // Si le rover a envoyé le chemin réel parcouru, utilisons-le pour mettre à jour la carte
+        if (response.payload.pathTaken && response.payload.pathTaken.length > 0) {
+            console.log(`🗺️ Mise à jour carte avec chemin réel: ${response.payload.pathTaken.length} positions`);
+
+            for (const pos of response.payload.pathTaken) {
+                const posKey = `${pos.x},${pos.y}`;
+                this.marsMap.exploredTerrain.add(posKey);
+            }
+
+            console.log(`🛤️ Chemin exploré: ${response.payload.pathTaken.map(p => `(${p.x},${p.y})`).join(' → ')}`);
+        }
+    }/**
      * Trace le chemin du rover entre deux positions en utilisant l'algorithme de Bresenham
      */
     private traceRoverPath(startPos: Position, endPos: Position): void {
@@ -192,38 +190,52 @@ export class MarsMissionControl {
         }
 
         console.log(`🗺️ Chemin tracé de (${startPos.x},${startPos.y}) à (${endPos.x},${endPos.y}) - ${path.length} cases explorées`);
-    }
-
-    /**
-     * Calcule le chemin en ligne droite entre deux positions (algorithme de Bresenham)
+    }    /**
+     * Calcule le chemin en ligne droite entre deux positions sur une carte toroïdale
      */
     private getLinePath(start: Position, end: Position): Position[] {
         const path: Position[] = [];
 
+        // Calculer les distances directe et "wrappée" pour chaque axe
+        const directDx = end.x - start.x;
+        const directDy = end.y - start.y;
+
+        // Distance avec wrapping
+        const wrapDx = directDx > 0 ? directDx - this.marsMap.width : directDx + this.marsMap.width;
+        const wrapDy = directDy > 0 ? directDy - this.marsMap.height : directDy + this.marsMap.height;
+
+        // Choisir le chemin le plus court pour chaque axe
+        const dx = Math.abs(directDx) <= Math.abs(wrapDx) ? directDx : wrapDx;
+        const dy = Math.abs(directDy) <= Math.abs(wrapDy) ? directDy : wrapDy;
+
+        // Tracer le chemin avec l'algorithme de Bresenham modifié pour le toroïdale
         let x0 = start.x;
         let y0 = start.y;
-        const x1 = end.x;
-        const y1 = end.y;
+        const steps = Math.max(Math.abs(dx), Math.abs(dy));
 
-        const dx = Math.abs(x1 - x0);
-        const dy = Math.abs(y1 - y0);
-        const sx = x0 < x1 ? 1 : -1;
-        const sy = y0 < y1 ? 1 : -1;
-        let err = dx - dy;
+        if (steps === 0) {
+            path.push({ x: x0, y: y0 });
+            return path;
+        }
 
-        while (true) {
+        const stepX = dx === 0 ? 0 : dx / Math.abs(dx);
+        const stepY = dy === 0 ? 0 : dy / Math.abs(dy);
+
+        for (let i = 0; i <= steps; i++) {
             path.push({ x: x0, y: y0 });
 
-            if (x0 === x1 && y0 === y1) break;
-
-            const e2 = 2 * err;
-            if (e2 > -dy) {
-                err -= dy;
-                x0 += sx;
-            }
-            if (e2 < dx) {
-                err += dx;
-                y0 += sy;
+            if (i < steps) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    x0 = (x0 + stepX + this.marsMap.width) % this.marsMap.width;
+                    if (i * Math.abs(dy) >= (i + 1) * Math.abs(dx) / 2) {
+                        y0 = (y0 + stepY + this.marsMap.height) % this.marsMap.height;
+                    }
+                } else {
+                    y0 = (y0 + stepY + this.marsMap.height) % this.marsMap.height;
+                    if (i * Math.abs(dx) >= (i + 1) * Math.abs(dy) / 2) {
+                        x0 = (x0 + stepX + this.marsMap.width) % this.marsMap.width;
+                    }
+                }
             }
         }
 

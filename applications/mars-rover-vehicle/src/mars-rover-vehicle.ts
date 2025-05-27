@@ -102,9 +102,7 @@ export class MarsRoverVehicle {
                 console.log(`⚠️  Type de message non supporté: ${message.type}`);
                 this.sendError(ws, `Type de message non supporté: ${message.type}`);
         }
-    }
-
-    /**
+    }    /**
      * Traite les commandes de mouvement
      */
     private handleCommand(ws: WebSocket, command: CommandMessage): void {
@@ -122,7 +120,8 @@ export class MarsRoverVehicle {
                 message: result.message,
                 finalPosition: result.finalPosition,
                 finalDirection: result.finalDirection,
-                obstacleDetected: result.obstacleDetected
+                obstacleDetected: result.obstacleDetected,
+                pathTaken: result.pathTaken // Inclure le chemin réel parcouru
             },
             timestamp: Date.now(),
             source: this.config.roverId
