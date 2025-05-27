@@ -55,7 +55,6 @@ export interface CommandResponseMessage extends NetworkMessage {
         finalPosition: Position;
         finalDirection: Direction;
         obstacleDetected?: Position;
-        pathTaken?: Position[]; // Chemin réel pris par le rover
     };
 }
 
