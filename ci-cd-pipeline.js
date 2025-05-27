@@ -28,14 +28,16 @@ const CONFIG = {
             name: 'mars-rover-vehicle',
             path: 'applications/mars-rover-vehicle',
             hasTests: true
-        }, {
+        },
+        {
             name: 'mars-mission-control',
             path: 'applications/mars-mission-control',
-            hasTests: true
+            hasTests: false
         }
-    ], integrationTests: [
-        'tools/tests/test-structured-logging.js',
-        'tools/tests/test-simple-validation.js'
+    ],
+    integrationTests: [
+        'test-structured-logging.js',
+        'test-simple-validation.js'
     ],
     timeout: 300000 // 5 minutes
 };

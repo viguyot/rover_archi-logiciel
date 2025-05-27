@@ -34,6 +34,7 @@ Pipeline complet avec toutes les étapes de validation :
 - ✅ Génération de rapport détaillé
 
 **Usage:**
+
 ```bash
 npm run ci:pipeline
 # ou directement
@@ -87,12 +88,14 @@ Scripts CI/CD disponibles dans le package.json principal :
 ### 4. Tests Unitaires
 
 #### Mars Rover Vehicle (`test/rover-engine.test.js`)
+
 - ✅ 10 tests de logique rover
 - ✅ Validation calculs position toroïdale
 - ✅ Tests détection obstacles
 - ✅ Validation commandes et rotations
 
 #### Mars Mission Control (`test/mission-control.test.js`)
+
 - ✅ 10 tests interface contrôle
 - ✅ Validation clavier ZQSD français
 - ✅ Tests protocole WebSocket
@@ -101,6 +104,7 @@ Scripts CI/CD disponibles dans le package.json principal :
 ### 5. Hooks Git (`.githooks/pre-commit`)
 
 Hook pre-commit pour validation automatique :
+
 - 🔨 Compilation des applications
 - 🧪 Exécution des tests
 - 🔍 Vérification TypeScript
@@ -108,6 +112,7 @@ Hook pre-commit pour validation automatique :
 - 🚫 Détection console.log
 
 **Installation:**
+
 ```bash
 git config core.hooksPath .githooks
 chmod +x .githooks/pre-commit
@@ -116,6 +121,7 @@ chmod +x .githooks/pre-commit
 ## ⚡ Utilisation Rapide
 
 ### Validation Complète Locale
+
 ```bash
 # Pipeline complet
 npm run ci:full
@@ -129,6 +135,7 @@ npm run ci:integration
 ```
 
 ### Tests Individuels
+
 ```bash
 # Tests rover
 cd applications/mars-rover-vehicle && npm test
@@ -142,6 +149,7 @@ npm run test:discovery
 ```
 
 ### Build Applications
+
 ```bash
 # Build toutes les applications
 npm run ci:build
@@ -154,14 +162,18 @@ npm run build:control
 ## 📊 Rapports et Métriques
 
 ### Rapport Pipeline Local
+
 Le pipeline génère automatiquement `ci-cd-report.json` avec :
+
 - Durée d'exécution de chaque étape
 - Détails des succès/échecs
 - Sorties des commandes
 - Résumé global du pipeline
 
 ### Métriques GitHub Actions
+
 Disponibles dans l'interface GitHub :
+
 - Temps d'exécution par job
 - Artefacts de build
 - Rapports de qualité
@@ -172,26 +184,31 @@ Disponibles dans l'interface GitHub :
 Le système CI/CD valide automatiquement :
 
 ### ✅ Architecture
+
 - Structure workspace correcte
 - Présence des fichiers critiques
 - Configuration package.json valide
 
 ### ✅ Build
+
 - Compilation TypeScript sans erreurs
 - Génération des artefacts dist/
 - Validation fichiers de sortie
 
 ### ✅ Tests
+
 - Tests unitaires rover (10 tests)
 - Tests unitaires mission control (10 tests)
 - Tests intégration système
 
 ### ✅ Qualité
+
 - Type checking TypeScript
 - Validation structure code
 - Vérification dépendances
 
 ### ✅ Intégration
+
 - Communication WebSocket
 - Système logging structuré
 - Architecture distribuée
@@ -200,12 +217,14 @@ Le système CI/CD valide automatiquement :
 ## 🔧 Configuration
 
 ### Variables d'Environnement
+
 ```bash
 NODE_VERSION=18  # Version Node.js
 CI_TIMEOUT=300000  # Timeout 5 minutes
 ```
 
 ### Dépendances Requises
+
 - Node.js >= 18.0.0
 - npm >= 8.0.0
 - TypeScript >= 5.0.0
@@ -213,6 +232,7 @@ CI_TIMEOUT=300000  # Timeout 5 minutes
 ## 🚀 Déploiement
 
 ### Déploiement Local
+
 ```bash
 # Préparation artefacts
 npm run ci:build
@@ -227,6 +247,7 @@ npm run ci:integration
 ```
 
 ### Déploiement GitHub Actions
+
 - Déclenchement automatique sur push `main`
 - Validation complète avant déploiement
 - Génération notes de version
@@ -235,12 +256,14 @@ npm run ci:integration
 ## 📈 Métriques de Performance
 
 ### Temps d'Exécution Typiques
+
 - Pipeline local complet: ~20-30 secondes
 - GitHub Actions workflow: ~5-8 minutes
 - Build application: ~2 secondes
 - Tests unitaires: ~1 seconde
 
 ### Optimisations
+
 - Cache npm dans GitHub Actions
 - Build parallèle des applications
 - Tests d'intégration avec timeout
@@ -251,12 +274,14 @@ npm run ci:integration
 ### Erreurs Communes
 
 **"Command timeout"**
+
 ```bash
 # Augmenter le timeout dans CONFIG
 timeout: 600000  // 10 minutes
 ```
 
 **"Build artifacts missing"**
+
 ```bash
 # Vérifier compilation
 npm run build:rover
@@ -265,6 +290,7 @@ ls -la applications/*/dist/
 ```
 
 **"Tests failed"**
+
 ```bash
 # Exécuter tests individuellement
 cd applications/mars-rover-vehicle && npm test
