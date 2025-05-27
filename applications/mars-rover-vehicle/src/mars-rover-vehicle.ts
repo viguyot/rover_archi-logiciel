@@ -1,5 +1,5 @@
 import WebSocket, { WebSocketServer } from 'ws';
-import { RoverEngine, PlanetConfig } from './rover-engine.js';
+import { RoverEngine, PlanetConfig, RoverLoggingConfig } from './rover-engine.js';
 import {
     Position,
     Direction,
@@ -23,6 +23,7 @@ export interface VehicleConfig {
     initialPosition: Position;
     initialDirection: Direction;
     planetConfig: PlanetConfig;
+    loggingConfig?: RoverLoggingConfig;
 }
 
 /**
@@ -33,14 +34,13 @@ export class MarsRoverVehicle {
     private wss: WebSocketServer;
     private rover: RoverEngine;
     private config: VehicleConfig;
-    private connections: Set<WebSocket> = new Set();
-
-    constructor(config: VehicleConfig) {
+    private connections: Set<WebSocket> = new Set(); constructor(config: VehicleConfig) {
         this.config = config;
         this.rover = new RoverEngine(
             config.initialPosition,
             config.initialDirection,
-            config.planetConfig
+            config.planetConfig,
+            config.loggingConfig
         );
 
         this.wss = new WebSocketServer({ port: config.port });
