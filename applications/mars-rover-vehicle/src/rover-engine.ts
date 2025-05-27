@@ -33,9 +33,7 @@ export class RoverEngine {
         console.log(`   Direction: ${this.direction}`);
         console.log(`   Planète: ${planetConfig.width}x${planetConfig.height}`);
         console.log(`   Obstacles: ${planetConfig.obstacles.length}`);
-    }
-
-    /**
+    }    /**
      * Exécute une série de commandes
      */
     executeCommands(commands: Command[]): {
@@ -45,16 +43,23 @@ export class RoverEngine {
         finalDirection: Direction;
         obstacleDetected?: Position;
         commandsExecuted: number;
+        pathTaken: Position[];
     } {
         const initialPosition = { ...this.position };
         const initialDirection = this.direction;
         let commandsExecuted = 0;
+        const pathTaken: Position[] = [{ ...this.position }]; // Commencer par la position initiale
 
         console.log(`🎮 Exécution de ${commands.length} commandes: ${commands.join('')}`);
 
         for (const command of commands) {
             const result = this.executeCommand(command);
             commandsExecuted++;
+
+            // Ajouter la nouvelle position au chemin si déplacement
+            if (result.success && (command === 'F' || command === 'B')) {
+                pathTaken.push({ ...this.position });
+            }
 
             if (!result.success) {
                 // Obstacle rencontré, arrêt immédiat
@@ -65,7 +70,8 @@ export class RoverEngine {
                     finalPosition: this.position,
                     finalDirection: this.direction,
                     obstacleDetected: result.obstacleDetected,
-                    commandsExecuted
+                    commandsExecuted,
+                    pathTaken
                 };
             }
 
@@ -87,13 +93,15 @@ export class RoverEngine {
 
         console.log(message);
         console.log(`📍 Position finale: (${this.position.x}, ${this.position.y}) ${this.direction}`);
+        console.log(`🛤️  Chemin parcouru: ${pathTaken.map(p => `(${p.x},${p.y})`).join(' → ')}`);
 
         return {
             success: true,
             message,
             finalPosition: this.position,
             finalDirection: this.direction,
-            commandsExecuted
+            commandsExecuted,
+            pathTaken
         };
     }
 
@@ -167,33 +175,46 @@ export class RoverEngine {
             success: true,
             message: `Rotation droite vers ${this.direction}`
         };
-    }
-
-    /**
-     * Calcule la nouvelle position selon la direction
+    }    /**
+     * Calcule la nouvelle position selon la direction (carte toroïdale)
      */
     private calculateNewPosition(direction: Direction): Position {
         const newPosition = { ...this.position };
+        let wrapped = false;
 
         switch (direction) {
             case 'NORTH':
-                newPosition.y = Math.max(0, newPosition.y - 1);
+                if (newPosition.y === 0) {
+                    wrapped = true;
+                    console.log(`🌍 Wrap vertical: bord nord → bord sud`);
+                }
+                newPosition.y = (newPosition.y - 1 + this.planetConfig.height) % this.planetConfig.height;
                 break;
             case 'SOUTH':
-                newPosition.y = Math.min(this.planetConfig.height - 1, newPosition.y + 1);
+                if (newPosition.y === this.planetConfig.height - 1) {
+                    wrapped = true;
+                    console.log(`🌍 Wrap vertical: bord sud → bord nord`);
+                }
+                newPosition.y = (newPosition.y + 1) % this.planetConfig.height;
                 break;
             case 'EAST':
-                newPosition.x = Math.min(this.planetConfig.width - 1, newPosition.x + 1);
+                if (newPosition.x === this.planetConfig.width - 1) {
+                    wrapped = true;
+                    console.log(`🌍 Wrap horizontal: bord est → bord ouest`);
+                }
+                newPosition.x = (newPosition.x + 1) % this.planetConfig.width;
                 break;
             case 'WEST':
-                newPosition.x = Math.max(0, newPosition.x - 1);
+                if (newPosition.x === 0) {
+                    wrapped = true;
+                    console.log(`🌍 Wrap horizontal: bord ouest → bord est`);
+                }
+                newPosition.x = (newPosition.x - 1 + this.planetConfig.width) % this.planetConfig.width;
                 break;
         }
 
         return newPosition;
-    }
-
-    /**
+    }/**
      * Tente un déplacement
      */
     private attemptMove(newPosition: Position, action: string): {
@@ -201,15 +222,7 @@ export class RoverEngine {
         message: string;
         obstacleDetected?: Position;
     } {
-        // Vérification des limites de la planète
-        if (newPosition.x < 0 || newPosition.x >= this.planetConfig.width ||
-            newPosition.y < 0 || newPosition.y >= this.planetConfig.height) {
-            console.log(`🚫 ${action}: Limite de planète atteinte`);
-            return {
-                success: false,
-                message: `${action}: Limite de planète atteinte`
-            };
-        }
+        // Note: Plus de vérification des limites car la carte est toroïdale
 
         // Vérification des obstacles
         const obstacle = this.planetConfig.obstacles.find(
