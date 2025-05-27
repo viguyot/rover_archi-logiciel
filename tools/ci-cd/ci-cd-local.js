@@ -30,7 +30,7 @@ const CONFIG = {
             hasTests: true
         },
         {
-            name: 'mars-mission-control', 
+            name: 'mars-mission-control',
             path: 'applications/mars-mission-control',
             hasTests: false
         }
@@ -42,13 +42,19 @@ const CONFIG = {
     timeout: 300000 // 5 minutes
 };
 
-class LocalCIPipeline {    constructor() {
+class LocalCIPipeline {
+    constructor() {
         this.results = {
             install: {},
             build: {},
             test: {},
             integration: {},
-            quality: {}
+            quality: {},
+            architecture: false,
+            roverBuild: false,
+            controlBuild: false,
+            integrationTests: false,
+            qualityChecks: false
         };
         this.startTime = Date.now();
     }
@@ -99,10 +105,6 @@ class LocalCIPipeline {    constructor() {
             });
         });
     }
-            qualityChecks: false
-        };
-        this.startTime = Date.now();
-    }
 
     async run() {
         console.log('🚀 === PIPELINE CI/CD LOCAL MARS ROVER ===\n');
@@ -114,9 +116,9 @@ class LocalCIPipeline {    constructor() {
             await this.runIntegrationTests();
             await this.performQualityChecks();
             await this.generateReport();
-            
+
             console.log('\n🎉 PIPELINE CI/CD TERMINÉ AVEC SUCCÈS !');
-            
+
         } catch (error) {
             console.error('\n💥 ÉCHEC DU PIPELINE:', error.message);
             process.exit(1);
@@ -125,7 +127,7 @@ class LocalCIPipeline {    constructor() {
 
     async validateArchitecture() {
         console.log('🏗️ === VALIDATION ARCHITECTURE ===');
-        
+
         try {
             // Vérifier la structure
             const requiredDirs = [
@@ -158,10 +160,10 @@ class LocalCIPipeline {    constructor() {
             // Exécuter le test d'architecture
             console.log('   🔧 Exécution test architecture...');
             await execAsync('node test-new-architecture.js');
-            
+
             this.results.architecture = true;
             console.log('   ✅ Architecture validée\n');
-            
+
         } catch (error) {
             console.error(`   ❌ Échec validation architecture: ${error.message}`);
             throw error;
@@ -170,42 +172,42 @@ class LocalCIPipeline {    constructor() {
 
     async buildApplications() {
         console.log('🔨 === BUILD APPLICATIONS ===');
-        
+
         await this.buildApplication('mars-rover-vehicle', 'Rover Vehicle');
         await this.buildApplication('mars-mission-control', 'Mission Control');
-        
+
         console.log('   ✅ Toutes les applications compilées\n');
     }
 
     async buildApplication(appName, displayName) {
         console.log(`   🔨 Build ${displayName}...`);
-        
+
         try {
             const workDir = `applications/${appName}`;
-            
+
             // Installation des dépendances
             console.log(`      📦 Installation dépendances...`);
             await execAsync('npm ci', { cwd: workDir });
-            
+
             // Compilation
             console.log(`      🏗️ Compilation TypeScript...`);
             await execAsync('npm run build', { cwd: workDir });
-            
+
             // Vérification des artefacts
             const distPath = path.join(workDir, 'dist');
             await fs.access(distPath);
-            
+
             const files = await fs.readdir(distPath);
             console.log(`      📁 Artefacts: ${files.length} fichiers générés`);
-            
+
             if (appName === 'mars-rover-vehicle') {
                 this.results.roverBuild = true;
             } else {
                 this.results.controlBuild = true;
             }
-            
+
             console.log(`   ✅ ${displayName} compilé avec succès`);
-            
+
         } catch (error) {
             console.error(`   ❌ Échec build ${displayName}: ${error.message}`);
             throw error;
@@ -214,7 +216,7 @@ class LocalCIPipeline {    constructor() {
 
     async runIntegrationTests() {
         console.log('🧪 === TESTS D\'INTÉGRATION ===');
-        
+
         const tests = [
             {
                 name: 'Test architecture distribuée',
@@ -235,7 +237,7 @@ class LocalCIPipeline {    constructor() {
 
         for (const test of tests) {
             console.log(`   🧪 ${test.name}...`);
-            
+
             try {
                 await this.runTestWithTimeout(test.command, test.timeout);
                 console.log(`   ✅ ${test.name} réussi`);
@@ -243,7 +245,7 @@ class LocalCIPipeline {    constructor() {
                 console.log(`   ⚠️ ${test.name} terminé avec timeout (normal)`);
             }
         }
-        
+
         this.results.integrationTests = true;
         console.log('   ✅ Tests d\'intégration terminés\n');
     }
@@ -251,12 +253,12 @@ class LocalCIPipeline {    constructor() {
     async runTestWithTimeout(command, timeout) {
         return new Promise((resolve, reject) => {
             const child = exec(command);
-            
+
             const timer = setTimeout(() => {
                 child.kill();
                 resolve(); // Timeout considéré comme succès pour les tests longs
             }, timeout);
-            
+
             child.on('exit', (code) => {
                 clearTimeout(timer);
                 if (code === 0) {
@@ -270,17 +272,17 @@ class LocalCIPipeline {    constructor() {
 
     async performQualityChecks() {
         console.log('📊 === CONTRÔLES QUALITÉ ===');
-        
+
         try {
             // Vérifier les artefacts de build
             console.log('   🔍 Vérification artefacts...');
-            
+
             const roverDist = await fs.readdir('applications/mars-rover-vehicle/dist');
             const controlDist = await fs.readdir('applications/mars-mission-control/dist');
-            
+
             console.log(`   📁 Rover artifacts: ${roverDist.length} fichiers`);
             console.log(`   📁 Control artifacts: ${controlDist.length} fichiers`);
-            
+
             // Vérifier les fichiers critiques
             const criticalFiles = [
                 'applications/mars-rover-vehicle/dist/index.js',
@@ -288,7 +290,7 @@ class LocalCIPipeline {    constructor() {
                 'applications/mars-mission-control/dist/index.js',
                 'applications/mars-mission-control/dist/mars-mission-control.js'
             ];
-            
+
             for (const file of criticalFiles) {
                 try {
                     await fs.access(file);
@@ -297,7 +299,7 @@ class LocalCIPipeline {    constructor() {
                     throw new Error(`Fichier critique manquant: ${file}`);
                 }
             }
-            
+
             // Vérifier la taille des artefacts
             console.log('   📏 Analyse de la taille des artefacts...');
             for (const file of criticalFiles) {
@@ -305,10 +307,10 @@ class LocalCIPipeline {    constructor() {
                 const sizeKB = Math.round(stats.size / 1024);
                 console.log(`      ${path.basename(file)}: ${sizeKB} KB`);
             }
-            
+
             this.results.qualityChecks = true;
             console.log('   ✅ Contrôles qualité réussis\n');
-            
+
         } catch (error) {
             console.error(`   ❌ Échec contrôles qualité: ${error.message}`);
             throw error;
@@ -317,10 +319,10 @@ class LocalCIPipeline {    constructor() {
 
     async generateReport() {
         console.log('📋 === GÉNÉRATION RAPPORT ===');
-        
+
         const duration = Date.now() - this.startTime;
         const durationMin = Math.round(duration / 1000 / 60 * 100) / 100;
-        
+
         const report = `# 📊 Rapport Pipeline CI/CD Local
 
 ## 🏗️ Résultats de Build
