@@ -100,9 +100,9 @@ class LocalCIPipeline {
             });
         });
     }
-    qualityChecks: false
-};
-this.startTime = Date.now();
+    qualityChecks = false;
+
+    this.startTime = Date.now();
     }
 
     async run() {
