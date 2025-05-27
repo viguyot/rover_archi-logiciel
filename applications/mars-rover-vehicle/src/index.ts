@@ -4,25 +4,86 @@ import { MarsRoverVehicle, VehicleConfig } from './mars-rover-vehicle.js';
 import { Position, Direction } from './network-protocol.js';
 
 /**
+ * Génère une position aléatoire dans les limites de la planète
+ */
+function generateRandomPosition(width: number, height: number): Position {
+    return {
+        x: Math.floor(Math.random() * width),
+        y: Math.floor(Math.random() * height)
+    };
+}
+
+/**
+ * Vérifie si deux positions sont identiques
+ */
+function positionsEqual(pos1: Position, pos2: Position): boolean {
+    return pos1.x === pos2.x && pos1.y === pos2.y;
+}
+
+/**
+ * Génère des obstacles aléatoires sans collision avec la position initiale
+ */
+function generateRandomObstacles(width: number, height: number, initialPosition: Position, count: number = 5): Position[] {
+    const obstacles: Position[] = [];
+    const maxAttempts = width * height; // Éviter une boucle infinie
+    let attempts = 0;
+
+    while (obstacles.length < count && attempts < maxAttempts) {
+        const newObstacle = generateRandomPosition(width, height);
+        
+        // Vérifier que l'obstacle n'est pas sur la position initiale
+        if (positionsEqual(newObstacle, initialPosition)) {
+            attempts++;
+            continue;
+        }
+
+        // Vérifier que l'obstacle n'existe pas déjà
+        const alreadyExists = obstacles.some(existing => positionsEqual(existing, newObstacle));
+        if (alreadyExists) {
+            attempts++;
+            continue;
+        }
+
+        obstacles.push(newObstacle);
+        attempts++;
+    }
+
+    return obstacles;
+}
+
+/**
+ * Génère une configuration aléatoire de la planète
+ */
+function generateRandomPlanetConfig(width: number = 10, height: number = 10) {
+    const initialPosition = generateRandomPosition(width, height);
+    const obstacles = generateRandomObstacles(width, height, initialPosition);
+    
+    return {
+        initialPosition,
+        planetConfig: {
+            width,
+            height,
+            obstacles
+        }
+    };
+}
+
+/**
  * Configuration par défaut du rover
  */
-const DEFAULT_CONFIG: VehicleConfig = {
-    port: 8080,
-    roverId: 'curiosity-rover',
-    initialPosition: { x: 2, y: 2 },
-    initialDirection: 'NORTH',
-    planetConfig: {
-        width: 10,
-        height: 10,
-        obstacles: [
-            { x: 3, y: 3 },
-            { x: 5, y: 5 },
-            { x: 7, y: 1 },
-            { x: 1, y: 7 },
-            { x: 8, y: 8 }
-        ]
-    }
-};
+function createDefaultConfig(): VehicleConfig {
+    const randomConfig = generateRandomPlanetConfig(10, 10);
+    
+    return {
+        port: 8080,
+        roverId: 'curiosity-rover',
+        initialPosition: randomConfig.initialPosition,
+        initialDirection: 'NORTH',
+        planetConfig: randomConfig.planetConfig
+    };
+}
+
+const DEFAULT_CONFIG: VehicleConfig = createDefaultConfig();
 
 /**
  * Parse les arguments de ligne de commande
@@ -30,6 +91,7 @@ const DEFAULT_CONFIG: VehicleConfig = {
 function parseArguments(): VehicleConfig {
     const args = process.argv.slice(2);
     const config = { ...DEFAULT_CONFIG };
+    let planetDimensionsChanged = false;
 
     for (let i = 0; i < args.length; i += 2) {
         const key = args[i];
@@ -55,14 +117,30 @@ function parseArguments(): VehicleConfig {
                 break;
             case '--planet-width':
                 config.planetConfig.width = parseInt(value);
+                planetDimensionsChanged = true;
                 break;
             case '--planet-height':
                 config.planetConfig.height = parseInt(value);
+                planetDimensionsChanged = true;
                 break;
             case '--help':
                 showHelp();
                 process.exit(0);
         }
+    }
+
+    // Si les dimensions de la planète ont changé, régénérer une configuration aléatoire
+    if (planetDimensionsChanged) {
+        const randomConfig = generateRandomPlanetConfig(config.planetConfig.width, config.planetConfig.height);
+        
+        // Garder la position initiale personnalisée si elle a été spécifiée
+        const hasCustomPosition = args.includes('--x') || args.includes('--y');
+        if (!hasCustomPosition) {
+            config.initialPosition = randomConfig.initialPosition;
+        }
+        
+        // Toujours régénérer les obstacles
+        config.planetConfig.obstacles = randomConfig.planetConfig.obstacles;
     }
 
     return config;
@@ -109,12 +187,19 @@ function validateConfig(config: VehicleConfig): boolean {
         return false;
     }
 
+    // Vérifier s'il y a conflit avec un obstacle
     const obstacle = config.planetConfig.obstacles.find(
         obs => obs.x === config.initialPosition.x && obs.y === config.initialPosition.y
     );
     if (obstacle) {
-        console.error('❌ Position initiale sur un obstacle');
-        return false;
+        console.warn('⚠️ Position initiale en conflit avec un obstacle, régénération des obstacles...');
+        // Régénérer les obstacles en évitant la position initiale
+        config.planetConfig.obstacles = generateRandomObstacles(
+            config.planetConfig.width, 
+            config.planetConfig.height, 
+            config.initialPosition,
+            config.planetConfig.obstacles.length
+        );
     }
 
     return true;
