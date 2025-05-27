@@ -174,9 +174,30 @@ class ToroidalMapTester {
     }
 
     async turnRoverTo(targetDirection) {
-        // Implémentation simplifiée du turn
-        await this.sendCommand(['R']); // Une rotation pour simplifier
-        await this.sleep(300);
+        const directions = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
+        const currentIndex = directions.indexOf(this.roverDirection);
+        const targetIndex = directions.indexOf(targetDirection);
+
+        if (currentIndex === -1 || targetIndex === -1) {
+            throw new Error(`Invalid direction: ${this.roverDirection} or ${targetDirection}`);
+        }
+
+        let steps = (targetIndex - currentIndex + 4) % 4; // Clockwise steps
+        if (steps > 2) steps -= 4; // Convert to minimal steps (-3 to +3)
+
+        const commands = [];
+        if (steps > 0) {
+            commands.push(...Array(steps).fill('R'));
+        } else if (steps < 0) {
+            commands.push(...Array(-steps).fill('L'));
+        }
+
+        for (const command of commands) {
+            await this.sendCommand([command]);
+            await this.sleep(300);
+        }
+
+        this.roverDirection = targetDirection; // Update current direction
     }
 
     sendCommand(commands) {
