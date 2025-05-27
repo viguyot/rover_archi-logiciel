@@ -67,11 +67,7 @@ Plusieurs commandes de déplacements peuvent s'effectuer à la suite (exemple: '
 
 - **Exploration automatique** : Le rover construit une carte de la zone explorée
 - **Détection d'obstacles** : Les obstacles sont détectés et signalés au centre de contrôle
-- **Carte toroïdale** : La planète est sphérique - le rover passe automatiquement d'un bord à l'autre
-  - Atteindre le bord nord téléporte vers le bord sud
-  - Atteindre le bord est téléporte vers le bord ouest
-  - Et vice versa, permettant une exploration continue
-- **Simulation physique** : Consommation de batterie, détection d'obstacles
+- **Simulation physique** : Consommation de batterie, limites de mouvement
 - **Interface temps réel** : Communication bidirectionnelle via WebSocket
 
 ## Développement
