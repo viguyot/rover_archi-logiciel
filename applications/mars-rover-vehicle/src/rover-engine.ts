@@ -33,7 +33,8 @@ export class RoverEngine {
         console.log(`   Direction: ${this.direction}`);
         console.log(`   Planète: ${planetConfig.width}x${planetConfig.height}`);
         console.log(`   Obstacles: ${planetConfig.obstacles.length}`);
-    }    /**
+    }
+    /**
      * Exécute une série de commandes
      */
     executeCommands(commands: Command[]): {
