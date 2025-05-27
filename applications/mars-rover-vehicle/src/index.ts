@@ -2,6 +2,7 @@
 
 import { MarsRoverVehicle, VehicleConfig } from './mars-rover-vehicle.js';
 import { Position, Direction } from './network-protocol.js';
+import { RoverLoggingConfig } from './rover-engine.js';
 
 /**
  * Configuration par défaut du rover
@@ -21,6 +22,12 @@ const DEFAULT_CONFIG: VehicleConfig = {
             { x: 1, y: 7 },
             { x: 8, y: 8 }
         ]
+    },
+    loggingConfig: {
+        enableWrappingLogs: true,
+        enableMovementLogs: true,
+        enableCommandLogs: true,
+        enableObstacleLogs: true
     }
 };
 
@@ -55,9 +62,20 @@ function parseArguments(): VehicleConfig {
                 break;
             case '--planet-width':
                 config.planetConfig.width = parseInt(value);
-                break;
-            case '--planet-height':
+                break; case '--planet-height':
                 config.planetConfig.height = parseInt(value);
+                break;
+            case '--log-wrapping':
+                config.loggingConfig!.enableWrappingLogs = value.toLowerCase() === 'true';
+                break;
+            case '--log-movement':
+                config.loggingConfig!.enableMovementLogs = value.toLowerCase() === 'true';
+                break;
+            case '--log-commands':
+                config.loggingConfig!.enableCommandLogs = value.toLowerCase() === 'true';
+                break;
+            case '--log-obstacles':
+                config.loggingConfig!.enableObstacleLogs = value.toLowerCase() === 'true';
                 break;
             case '--help':
                 showHelp();
@@ -85,12 +103,20 @@ Options:
   --direction <direction>  Direction initiale: NORTH|SOUTH|EAST|WEST (défaut: NORTH)
   --planet-width <number>  Largeur de la planète (défaut: 10)
   --planet-height <number> Hauteur de la planète (défaut: 10)
+  
+  Options de logging:
+  --log-wrapping <bool>    Active les logs de wrapping toroïdal (défaut: true)
+  --log-movement <bool>    Active les logs de mouvement (défaut: true)
+  --log-commands <bool>    Active les logs de commandes (défaut: true)
+  --log-obstacles <bool>   Active les logs d'obstacles (défaut: true)
+  
   --help                   Affiche cette aide
 
 Exemples:
   node dist/index.js
   node dist/index.js --port 8081 --rover-id perseverance
   node dist/index.js --x 5 --y 5 --direction SOUTH
+  node dist/index.js --log-wrapping false --log-movement false
 `);
 }
 

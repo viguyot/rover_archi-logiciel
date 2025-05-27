@@ -10,6 +10,26 @@ export interface PlanetConfig {
 }
 
 /**
+ * Types d'événements du rover
+ */
+export type RoverEvent =
+    | { type: 'WRAP_HORIZONTAL'; from: 'WEST' | 'EAST'; to: 'EAST' | 'WEST'; position: Position }
+    | { type: 'WRAP_VERTICAL'; from: 'NORTH' | 'SOUTH'; to: 'SOUTH' | 'NORTH'; position: Position }
+    | { type: 'MOVE_SUCCESS'; action: string; position: Position }
+    | { type: 'OBSTACLE_DETECTED'; position: Position; action: string }
+    | { type: 'COMMAND_EXECUTED'; command: Command; success: boolean };
+
+/**
+ * Configuration du logging du rover
+ */
+export interface RoverLoggingConfig {
+    enableWrappingLogs: boolean;
+    enableMovementLogs: boolean;
+    enableCommandLogs: boolean;
+    enableObstacleLogs: boolean;
+}
+
+/**
  * Moteur de simulation du rover Mars
  * Cette classe simule le comportement physique du rover
  */
@@ -18,15 +38,27 @@ export class RoverEngine {
     private direction: Direction;
     private planetConfig: PlanetConfig;
     private battery: number = 100;
+    private loggingConfig: RoverLoggingConfig;
+    private eventListeners: ((event: RoverEvent) => void)[] = [];
 
     constructor(
         initialPosition: Position,
         initialDirection: Direction,
-        planetConfig: PlanetConfig
+        planetConfig: PlanetConfig,
+        loggingConfig: RoverLoggingConfig = {
+            enableWrappingLogs: true,
+            enableMovementLogs: true,
+            enableCommandLogs: true,
+            enableObstacleLogs: true
+        }
     ) {
         this.position = { ...initialPosition };
         this.direction = initialDirection;
         this.planetConfig = planetConfig;
+        this.loggingConfig = loggingConfig;
+
+        // Ajouter un écouteur par défaut pour les logs console si activé
+        this.addEventListener((event) => this.handleDefaultLogging(event));
 
         console.log(`🚀 Rover Engine initialisé:`);
         console.log(`   Position: (${this.position.x}, ${this.position.y})`);
@@ -104,9 +136,7 @@ export class RoverEngine {
             commandsExecuted,
             pathTaken
         };
-    }
-
-    /**
+    }    /**
      * Exécute une commande individuelle
      */
     private executeCommand(command: Command): {
@@ -114,7 +144,11 @@ export class RoverEngine {
         message: string;
         obstacleDetected?: Position;
     } {
-        console.log(`🔧 Exécution commande: ${command}`);
+        this.emitEvent({
+            type: 'COMMAND_EXECUTED',
+            command,
+            success: true
+        });
 
         switch (command) {
             case 'F':
@@ -181,35 +215,56 @@ export class RoverEngine {
      */
     private calculateNewPosition(direction: Direction): Position {
         const newPosition = { ...this.position };
+
         switch (direction) {
             case 'NORTH':
                 if (newPosition.y === 0) {
-                    console.log(`🌍 Wrap vertical: bord nord → bord sud`);
+                    this.emitEvent({
+                        type: 'WRAP_VERTICAL',
+                        from: 'NORTH',
+                        to: 'SOUTH',
+                        position: { ...newPosition }
+                    });
                 }
                 newPosition.y = (newPosition.y - 1 + this.planetConfig.height) % this.planetConfig.height;
                 break;
             case 'SOUTH':
                 if (newPosition.y === this.planetConfig.height - 1) {
-                    console.log(`🌍 Wrap vertical: bord sud → bord nord`);
+                    this.emitEvent({
+                        type: 'WRAP_VERTICAL',
+                        from: 'SOUTH',
+                        to: 'NORTH',
+                        position: { ...newPosition }
+                    });
                 }
                 newPosition.y = (newPosition.y + 1) % this.planetConfig.height;
                 break;
             case 'EAST':
                 if (newPosition.x === this.planetConfig.width - 1) {
-                    console.log(`🌍 Wrap horizontal: bord est → bord ouest`);
+                    this.emitEvent({
+                        type: 'WRAP_HORIZONTAL',
+                        from: 'EAST',
+                        to: 'WEST',
+                        position: { ...newPosition }
+                    });
                 }
                 newPosition.x = (newPosition.x + 1) % this.planetConfig.width;
                 break;
             case 'WEST':
                 if (newPosition.x === 0) {
-                    console.log(`🌍 Wrap horizontal: bord ouest → bord est`);
+                    this.emitEvent({
+                        type: 'WRAP_HORIZONTAL',
+                        from: 'WEST',
+                        to: 'EAST',
+                        position: { ...newPosition }
+                    });
                 }
                 newPosition.x = (newPosition.x - 1 + this.planetConfig.width) % this.planetConfig.width;
                 break;
         }
 
         return newPosition;
-    }/**
+    }    /**
      * Tente un déplacement
      */
     private attemptMove(newPosition: Position, action: string): {
@@ -225,7 +280,11 @@ export class RoverEngine {
         );
 
         if (obstacle) {
-            console.log(`🚧 ${action}: Obstacle détecté en (${obstacle.x}, ${obstacle.y})`);
+            this.emitEvent({
+                type: 'OBSTACLE_DETECTED',
+                position: obstacle,
+                action
+            });
             return {
                 success: false,
                 message: `${action}: Obstacle détecté`,
@@ -235,7 +294,11 @@ export class RoverEngine {
 
         // Déplacement réussi
         this.position = newPosition;
-        console.log(`✅ ${action}: (${this.position.x}, ${this.position.y})`);
+        this.emitEvent({
+            type: 'MOVE_SUCCESS',
+            action,
+            position: { ...this.position }
+        });
         return {
             success: true,
             message: `${action} vers (${this.position.x}, ${this.position.y})`
@@ -279,5 +342,71 @@ export class RoverEngine {
             height: this.planetConfig.height,
             obstacles: [...this.planetConfig.obstacles]
         };
+    }
+
+    /**
+     * Ajoute un écouteur d'événements
+     */
+    addEventListener(listener: (event: RoverEvent) => void): void {
+        this.eventListeners.push(listener);
+    }
+
+    /**
+     * Supprime un écouteur d'événements
+     */
+    removeEventListener(listener: (event: RoverEvent) => void): void {
+        const index = this.eventListeners.indexOf(listener);
+        if (index !== -1) {
+            this.eventListeners.splice(index, 1);
+        }
+    }
+
+    /**
+     * Émet un événement vers tous les écouteurs
+     */
+    private emitEvent(event: RoverEvent): void {
+        this.eventListeners.forEach(listener => listener(event));
+    }
+
+    /**
+     * Gestion par défaut des logs console
+     */
+    private handleDefaultLogging(event: RoverEvent): void {
+        switch (event.type) {
+            case 'WRAP_HORIZONTAL':
+                if (this.loggingConfig.enableWrappingLogs) {
+                    const direction = event.from === 'WEST' ? 'bord ouest → bord est' : 'bord est → bord ouest';
+                    console.log(`🌍 Wrap horizontal: ${direction}`);
+                }
+                break;
+            case 'WRAP_VERTICAL':
+                if (this.loggingConfig.enableWrappingLogs) {
+                    const direction = event.from === 'NORTH' ? 'bord nord → bord sud' : 'bord sud → bord nord';
+                    console.log(`🌍 Wrap vertical: ${direction}`);
+                }
+                break;
+            case 'MOVE_SUCCESS':
+                if (this.loggingConfig.enableMovementLogs) {
+                    console.log(`✅ ${event.action}: (${event.position.x}, ${event.position.y})`);
+                }
+                break;
+            case 'OBSTACLE_DETECTED':
+                if (this.loggingConfig.enableObstacleLogs) {
+                    console.log(`🚧 ${event.action}: Obstacle détecté en (${event.position.x}, ${event.position.y})`);
+                }
+                break;
+            case 'COMMAND_EXECUTED':
+                if (this.loggingConfig.enableCommandLogs) {
+                    console.log(`🔧 Exécution commande: ${event.command}`);
+                }
+                break;
+        }
+    }
+
+    /**
+     * Met à jour la configuration de logging
+     */
+    setLoggingConfig(config: Partial<RoverLoggingConfig>): void {
+        this.loggingConfig = { ...this.loggingConfig, ...config };
     }
 }
