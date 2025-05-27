@@ -2,12 +2,12 @@ name: 🚀 Mars Rover CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: "18"
 
 jobs:
   # Job 1: Validation de l'architecture et des dépendances
@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 🔍 Validate workspace structure
         run: |
@@ -31,7 +31,9 @@ jobs:
           test -d "applications/mars-mission-control" || { echo "❌ Dossier mars-mission-control manquant"; exit 1; }
           test -f "applications/mars-rover-vehicle/package.json" || { echo "❌ package.json rover manquant"; exit 1; }
           test -f "applications/mars-mission-control/package.json" || { echo "❌ package.json control manquant"; exit 1; }
-          echo "✅ Structure du workspace validée"      - name: 🔧 Test architecture script
+          echo "✅ Structure du workspace validée"
+
+      - name: 🔧 Test architecture script
         run: |
           chmod +x tools/tests/test-new-architecture.js
           node tools/tests/test-new-architecture.js
@@ -49,7 +51,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 📦 Install rover dependencies
         working-directory: ./applications/mars-rover-vehicle
@@ -98,7 +100,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 📦 Install control dependencies
         working-directory: ./applications/mars-mission-control
@@ -147,7 +149,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 📥 Download rover artifacts
         uses: actions/download-artifact@v4
@@ -166,7 +168,9 @@ jobs:
           echo "📦 Installation des dépendances système..."
           npm ci
           cd applications/mars-rover-vehicle && npm ci
-          cd ../mars-mission-control && npm ci      - name: 🧪 Test système de logging structuré
+          cd ../mars-mission-control && npm ci
+
+      - name: 🧪 Test système de logging structuré
         run: |
           echo "🧪 Test du système de logging structuré..."
           timeout 60s node tools/tests/test-structured-logging.js || echo "✅ Test logging terminé"
@@ -200,12 +204,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: 📥 Download artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: '*-build'
+          pattern: "*-build"
           merge-multiple: true
 
       - name: 📦 Install dependencies
@@ -252,48 +256,48 @@ jobs:
       - name: 📊 Generate quality report
         run: |
           echo "📊 Génération du rapport de qualité..."
-          
+
           cat > quality-report.md << 'EOF'
           # 📊 Mars Rover CI/CD Quality Report
-          
+
           ## 🏗️ Build Status
-          
+
           ### 🤖 Mars Rover Vehicle
           - ✅ Dependencies installed
           - ✅ TypeScript compilation
           - ✅ Build artifacts generated
-          
+
           ### 🎮 Mars Mission Control  
           - ✅ Dependencies installed
           - ✅ TypeScript compilation
           - ✅ Build artifacts generated
-          
+
           ## 🧪 Test Results
-          
+
           ### ✅ Tests Passed
           - Architecture validation
           - Structured logging system
           - Distributed communication
           - Obstacle discovery system
-          
+
           ### 📈 Quality Metrics
           - Code compilation: ✅ Success
           - Test coverage: ⚠️ To be implemented
           - Performance: ✅ Within limits
           - Architecture compliance: ✅ Validated
-          
+
           ## 🎯 Recommendations
-          
+
           1. Add unit tests for rover engine
           2. Implement integration test suite
           3. Add performance benchmarks
           4. Set up code quality gates
-          
+
           ---
           Generated on: $(date)
           Commit: ${{ github.sha }}
           EOF
-          
+
           echo "✅ Rapport de qualité généré"
           cat quality-report.md
 
@@ -318,7 +322,7 @@ jobs:
       - name: 📥 Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: '*-build'
+          pattern: "*-build"
           merge-multiple: true
 
       - name: 🚀 Simulate deployment
@@ -333,28 +337,28 @@ jobs:
           echo "📝 Génération des notes de version..."
           cat > release-notes.md << EOF
           # 🚀 Mars Rover Release Notes
-          
+
           ## Version: ${{ github.sha }}
           Date: $(date)
-          
+
           ### ✨ New Features
           - ZQSD keyboard controls (French layout)
           - Toroidal map with wrapping
           - Structured logging system
           - Real path tracking
-          
+
           ### 🔧 Technical Improvements
           - Event-driven logging architecture
           - Modular configuration via CLI
           - Enhanced network protocol
           - Distributed system validation
-          
+
           ### 🧪 Quality Assurance
           - Automated CI/CD pipeline
           - Architecture validation
           - Integration testing
           - Performance monitoring
-          
+
           ---
           Built with ❤️ for Mars exploration
           EOF
