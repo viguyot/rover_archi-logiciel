@@ -73,7 +73,7 @@
 
 - `test-structured-logging.js` - Validation du système de logging
 - `test-simple-validation.js` - Test d'intégration simple
-- `test-path-wrapping.js` - Tests de wrapping toroïdal
+<!-- REMOVED: test-path-wrapping.js - Tests de wrapping toroïdal -->
 
 ## 🎯 OBJECTIFS ATTEINTS
 
