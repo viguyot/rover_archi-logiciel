@@ -57,6 +57,7 @@ export class MarsMissionControl {
     private reconnectTimer: NodeJS.Timeout | null = null;
     private pingTimer: NodeJS.Timeout | null = null;
     private connectionAttempts = 0;
+    private isFirstConnection = true; // Nouveau: pour détecter la première connexion
 
     constructor(config: MissionControlConfig) {
         this.config = config;
@@ -93,6 +94,12 @@ export class MarsMissionControl {
                 this.connectionAttempts = 0;
                 this.setupPingTimer();
                 this.clearReconnectTimer();
+
+                // Réinitialiser la carte si c'est la première connexion
+                if (this.isFirstConnection) {
+                    this.resetMarsMap();
+                    this.isFirstConnection = false;
+                }
             });
 
             this.ws.on('message', (data: Buffer) => {
@@ -102,19 +109,21 @@ export class MarsMissionControl {
                 } catch (error) {
                     console.error('❌ Erreur parsing message rover:', error);
                 }
-            });
-
-            this.ws.on('close', () => {
+            });            this.ws.on('close', () => {
                 console.log('🔌 Connexion rover fermée');
                 this.roverState = null;
                 this.clearPingTimer();
                 this.scheduleReconnect();
+                // Marquer qu'il faut réinitialiser la map à la prochaine connexion
+                this.isFirstConnection = true;
             });
 
             this.ws.on('error', (error) => {
                 console.error('❌ Erreur connexion rover:', error.message);
                 this.roverState = null;
                 this.scheduleReconnect();
+                // Marquer qu'il faut réinitialiser la map à la prochaine connexion
+                this.isFirstConnection = true;
             });
 
         } catch (error) {
@@ -143,11 +152,14 @@ export class MarsMissionControl {
             default:
                 console.log(`📨 Message rover reçu: ${message.type}`);
         }
-    }
-
-    /**
+    }    /**
      * Traite les mises à jour de statut
      */    private handleStatusUpdate(status: StatusMessage): void {
+        // Afficher info du rover si c'est la première status update
+        if (!this.roverState) {
+            console.log(`🚀 Rover connecté: ${status.payload.roverId}`);
+        }
+
         // Sauvegarder l'ancienne position pour tracer le chemin
         const oldPosition = this.roverState?.position;
 
@@ -172,7 +184,7 @@ export class MarsMissionControl {
         this.marsMap.exploredTerrain.add(posKey);
 
         console.log(`📊 Statut rover mis à jour: (${status.payload.position.x}, ${status.payload.position.y}) ${status.payload.direction} - ${status.payload.battery}%`);
-    }    /**
+    }/**
      * Traite les réponses de commandes
      */
     private handleCommandResponse(response: CommandResponseMessage): void {
@@ -329,6 +341,15 @@ export class MarsMissionControl {
             clearTimeout(this.reconnectTimer);
             this.reconnectTimer = null;
         }
+    }
+
+    /**
+     * Réinitialise la carte de Mars
+     */
+    private resetMarsMap(): void {
+        this.marsMap.exploredTerrain.clear();
+        this.marsMap.knownObstacles = [];
+        console.log('🗺️ Carte Mars réinitialisée - Nouveau rover détecté');
     }
 
     /**
