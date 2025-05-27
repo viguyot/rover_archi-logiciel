@@ -181,33 +181,27 @@ export class RoverEngine {
      */
     private calculateNewPosition(direction: Direction): Position {
         const newPosition = { ...this.position };
-        let wrapped = false;
-
         switch (direction) {
             case 'NORTH':
                 if (newPosition.y === 0) {
-                    wrapped = true;
                     console.log(`🌍 Wrap vertical: bord nord → bord sud`);
                 }
                 newPosition.y = (newPosition.y - 1 + this.planetConfig.height) % this.planetConfig.height;
                 break;
             case 'SOUTH':
                 if (newPosition.y === this.planetConfig.height - 1) {
-                    wrapped = true;
                     console.log(`🌍 Wrap vertical: bord sud → bord nord`);
                 }
                 newPosition.y = (newPosition.y + 1) % this.planetConfig.height;
                 break;
             case 'EAST':
                 if (newPosition.x === this.planetConfig.width - 1) {
-                    wrapped = true;
                     console.log(`🌍 Wrap horizontal: bord est → bord ouest`);
                 }
                 newPosition.x = (newPosition.x + 1) % this.planetConfig.width;
                 break;
             case 'WEST':
                 if (newPosition.x === 0) {
-                    wrapped = true;
                     console.log(`🌍 Wrap horizontal: bord ouest → bord est`);
                 }
                 newPosition.x = (newPosition.x - 1 + this.planetConfig.width) % this.planetConfig.width;
