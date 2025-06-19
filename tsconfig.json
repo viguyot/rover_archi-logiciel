@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@mars-rover/shared": ["packages/shared/src/index.ts"],
+      "@mars-rover/shared/*": ["packages/shared/src/*"],
+      "@mars-rover/core": ["packages/core/src/index.ts"],
+      "@mars-rover/core/*": ["packages/core/src/*"],
+      "@mars-rover/infra": ["packages/infra/src/index.ts"],
+      "@mars-rover/infra/*": ["packages/infra/src/*"]
+    }
+  },
+  "include": ["apps/**/*", "packages/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

@@ -1,55 +1,22 @@
 {
-  "name": "mars-rover-distributed-system",
+  "name": "mars-rover-project",
   "version": "1.0.0",
-  "description": "Système distribué Mars Rover - Architecture complètement séparée",
-  "type": "module",
+  "description": "Projet Mars Rover Distribué avec architecture DDD",
+  "private": true,
   "scripts": {
-    "start": "node start-system.js",
-    "start:dev": "node start-system.js --dev",
-    "install-all": "node start-system.js --install-only",
-    "build-all": "node start-system.js --build-only",
-    "start:rover": "cd applications/mars-rover-vehicle && npm start",
-    "start:control": "cd applications/mars-mission-control && npm start",
-    "dev:rover": "cd applications/mars-rover-vehicle && npm run dev",
-    "dev:control": "cd applications/mars-mission-control && npm run dev",
-    "build:rover": "cd applications/mars-rover-vehicle && npm run build",
-    "build:control": "cd applications/mars-mission-control && npm run build",
-    "clean": "cd applications/mars-rover-vehicle && npm run clean && cd ../mars-mission-control && npm run clean",
-    "test": "node tools/tests/test-new-architecture.js",
-    "test:discovery": "node tools/tests/test-discovery-automated.js",
-    "test:validation": "node tools/tests/test-simple-validation.js",
-    "test:logging": "node tools/tests/test-structured-logging.js",
-    "ci:pipeline": "node tools/ci-cd/ci-cd-pipeline.js",
-    "ci:local": "node tools/ci-cd/ci-cd-local.js",
-    "ci:install": "npm install && cd applications/mars-rover-vehicle && npm install && cd ../mars-mission-control && npm install",
-    "ci:build": "npm run build:rover && npm run build:control",
-    "ci:test": "cd applications/mars-rover-vehicle && npm test",
-    "ci:quality": "cd applications/mars-rover-vehicle && npx tsc --noEmit && cd ../mars-mission-control && npx tsc --noEmit",
-    "ci:integration": "npm test && npm run test:discovery",
-    "ci:full": "npm run ci:install && npm run ci:build && npm run ci:test && npm run ci:quality && npm run ci:integration",
-    "postinstall": "echo 'Installation terminée - Utilisez npm run start pour démarrer le système'",
-    "pretest": "echo 'Préparation des tests - Vérification de l environnement'",
-    "posttest": "echo 'Tests terminés - Consultez tools/ci-cd/ci-cd-report.json pour les détails'"
+    "build": "pnpm -r build",
+    "clean": "pnpm -r clean",
+    "start:rover": "pnpm --filter rover-server start",
+    "start:mission": "pnpm --filter mission-control start",
+    "dev:rover": "pnpm --filter rover-server dev",
+    "dev:mission": "pnpm --filter mission-control dev",
+    "test": "pnpm -r test",
+    "install:all": "pnpm install"
   },
-  "keywords": [
-    "mars",
-    "rover",
-    "distributed-system",
-    "websocket",
-    "embedded",
-    "mission-control"
-  ],
-  "author": "",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "rimraf": "^5.0.0",
+    "@types/node": "^20.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "."
-  },
-  "dependencies": {
-    "mars-rover-distributed-system": "file:",
-    "ws": "^8.18.2"
-  }
+  "packageManager": "pnpm@8.0.0"
 }

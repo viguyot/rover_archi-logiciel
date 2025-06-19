@@ -1,144 +1,149 @@
-# Système Distribué Mars Rover
+# Mars Rover Distribué 🚀
 
-Ce projet implémente un système distribué pour le contrôle d'un rover martien, composé de deux applications complètement séparées qui communiquent uniquement via le réseau.
+Projet de simulation d'un **Rover spatial** explorant une planète de topologie **toroïdale**, contrôlé à distance via un **réseau TCP**.
 
-## Architecture
+## 🏗️ Architecture
 
-Le système est structuré en deux applications indépendantes :
+Le projet suit une architecture **DDD (Domain-Driven Design)** modérée avec séparation claire des responsabilités :
+
+### 📦 Structure des packages
 
 ```
-applications/
-├── mars-rover-vehicle/     # Système embarqué du rover
-└── mars-mission-control/   # Centre de contrôle au sol
+mars-rover/
+├── packages/
+│   ├── shared/          # Types, enums et interfaces communes
+│   ├── core/           # Interfaces du domaine métier
+│   └── infra/          # Interfaces d'infrastructure
+└── apps/
+    ├── rover/          # Serveur TCP du Rover (distant)
+    └── mission-control/ # Client console de contrôle
 ```
 
-### Séparation des Responsabilités
+### 🧠 Composants principaux
 
-- **mars-rover-vehicle** : Système embarqué qui simule le rover physique
-- **mars-mission-control** : Interface de contrôle pour les opérateurs au sol
-- **Communication** : Uniquement via WebSocket (aucune dépendance partagée)
+#### **Rover Server** (Serveur TCP distant)
 
-## Démarrage Rapide
+- **IRoverTcpServer** : Écoute TCP sur port configuré
+- **ICommandDispatcher** : Aiguillage et traitement des commandes
+- **IRoverEngine** : Moteur de simulation avec règles toroïdales
+- **IObstacleManager** : Gestion des collisions et obstacles
 
-### 1. Lancer le Véhicule Rover (Système Embarqué)
+#### **Mission Control** (Client console local)
+
+- **IMissionControl** : Orchestration principale
+- **IRoverService** : Communication TCP avec le rover
+- **IMapStateManager** : État local de la carte
+- **ICommandParser** : Transformation des commandes clavier
+
+#### **Sécurité**
+
+- **ISecurityService** : Authentification HMAC SHA256 sur tous les messages TCP
+
+## 🔧 Interfaces définies
+
+### **Types partagés** (`@mars-rover/shared`)
+
+- `Command` : Énumération des commandes (F, B, L, R)
+- `Direction` : Orientations cardinales (N, E, S, W)
+- `Position` : Coordonnées (x, y)
+- `RoverState` : État complet du rover
+- `TcpMessage` : Messages de communication TCP
+
+### **Domaine métier** (`@mars-rover/core`)
+
+- `IRoverEngine` : Logique de mouvement et simulation
+- `ICommandDispatcher` : Traitement des commandes
+- `IRoverService` : Communication TCP
+
+### **Infrastructure** (`@mars-rover/infra`)
+
+- `ICommandParser` : Analyse des commandes
+- `IMapStateManager` : Gestion de l'état de carte
+- `IObstacleManager` : Gestion des obstacles
+- `IConsoleDisplay` : Affichage console
+- `IInputCapture` : Capture des entrées clavier
+
+## 🚀 Installation et démarrage
+
+### Prérequis
+
+- Node.js 20+
+- pnpm
+
+### Installation
 
 ```bash
-cd applications/mars-rover-vehicle
-npm install
-npm run build
-npm start
+pnpm install:all
 ```
 
-Le rover écoute sur le port 8080.
-
-### 2. Lancer le Contrôle de Mission (Centre de Contrôle)
+### Construction
 
 ```bash
-cd applications/mars-mission-control
-npm install
-npm run build
-npm start
+pnpm build
 ```
 
-Le centre de contrôle se connecte automatiquement au rover.
+### Démarrage
 
-## Utilisation
-
-Une fois les deux applications lancées :
-
-### Commandes de Déplacement
-
-- **Z** : Avancer
-- **S** : Reculer
-- **Q** : Tourner à gauche
-- **D** : Tourner à droite
-
-Plusieurs commandes de déplacements peuvent s'effectuer à la suite (exemple: 'ZZQZ' fera avancer le rover 2 fois, tourner à gauche et avancer à nouveau)
-
-### Commandes de Statut
-
-- **M/map** : Afficher la carte des découvertes
-- **S/status** : Afficher le statut de la mission
-- **C/clear** : Nettoyer l'affichage
-- **H/help** : Afficher l'aide
-- **L/leave** : Quitter le programme
-
-### Fonctionnalités
-
-- **Exploration automatique** : Le rover construit une carte de la zone explorée
-- **Détection d'obstacles** : Les obstacles sont détectés et signalés au centre de contrôle
-- **Simulation physique** : Consommation de batterie, limites de mouvement
-- **Interface temps réel** : Communication bidirectionnelle via WebSocket
-
-## Développement
-
-### Mode Développement avec Rechargement Automatique
-
-Pour chaque application :
+1. **Démarrer le Rover** (serveur TCP) :
 
 ```bash
-npm run build:watch  # Terminal 1 - Compilation automatique
-npm run dev         # Terminal 2 - Exécution avec rechargement
+pnpm dev:rover
 ```
 
-### Scripts Disponibles
-
-- `npm run build` : Compilation TypeScript
-- `npm run build:watch` : Compilation avec surveillance des changements
-- `npm start` : Lancement de l'application compilée
-- `npm run dev` : Lancement direct avec ts-node
-- `npm run clean` : Nettoyage des fichiers compilés
-
-## Tests
-
-Deux scripts de test sont disponibles :
+2. **Démarrer Mission Control** (client console) :
 
 ```bash
-node test-new-architecture.js    # Test de l'architecture séparée
-node test-discovery-system.js    # Test du système de découverte
+pnpm dev:mission
 ```
 
-## Protocole de Communication
+## 🎮 Utilisation
 
-La communication utilise des messages JSON via WebSocket :
+### Commandes disponibles
 
-```typescript
-interface NetworkMessage {
-  type: "command" | "status" | "discovery";
-  data: any;
-}
+- `F` : Avancer
+- `B` : Reculer
+- `L` : Tourner à gauche
+- `R` : Tourner à droite
+
+### Exemple d'utilisation
+
+```
+> FFLR
+Rover moved: (2, 1) facing East
 ```
 
-### Types de Messages
+## 🔒 Sécurité
 
-- **command** : Commandes de déplacement (z/q/s/d)
-- **status** : Informations sur l'état du rover
-- **discovery** : Rapports de découverte d'obstacles ou de points d'intérêt
+- Toute communication TCP est sécurisée par **HMAC SHA256**
+- Clé partagée entre Rover et Mission Control
+- Vérification d'intégrité sur chaque message
 
-## Architecture Technique
+## 🧪 Tests
 
-### Principe de Séparation
+Les tests couvriront :
 
-- Aucune dépendance partagée entre les applications
-- Communication uniquement via réseau (WebSocket)
-- Chaque application peut être déployée indépendamment
-- Protocole de communication standardisé
+- **Tests unitaires** pour le domaine métier
+- **Tests d'intégration** pour la communication TCP
+- **Tests de sécurité** pour la validation HMAC
 
-### Technologies Utilisées
+## 📋 Règles métier
 
-- **TypeScript** : Langage principal
-- **Node.js** : Runtime d'exécution
-- **WebSocket (ws)** : Communication réseau
-- **ES Modules** : Système de modules moderne
+1. **Topologie toroïdale** : Les bords de la carte se rejoignent
+2. **Arrêt sur obstacle** : Le rover s'arrête sans exécuter les commandes suivantes
+3. **Pas de modification post-déploiement** : Le rover est immutable après démarrage
+4. **Communication sécurisée** : Tous les échanges TCP sont authentifiés
 
-## Structure du Code
+## 🎯 État actuel
 
-Chaque application contient :
+✅ **Interfaces TypeScript complètes**
 
-- `src/index.ts` : Point d'entrée de l'application
-- `src/network-protocol.ts` : Définitions du protocole de communication
-- `src/*.ts` : Modules spécifiques à l'application
-- `package.json` : Configuration et dépendances
-- `tsconfig.json` : Configuration TypeScript
+- Tous les contrats sont définis
+- Architecture DDD respectée
+- Types strongly typed
 
-Cette architecture garantit une séparation complète et une communication robuste entre les composants du système distribué.
+🔄 **Prochaines étapes :**
+
+- Implémentation des classes concrètes
+- Tests unitaires et d'intégration
+- Interface console interactive
+- Configuration et déploiement
